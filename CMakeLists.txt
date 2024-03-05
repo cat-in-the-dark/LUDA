@@ -6,13 +6,25 @@ set(CMAKE_C_STANDARD 11)
 file(GLOB_RECURSE SOURCES src/*.c)
 file(GLOB_RECURSE HEADERS src/*.h)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
-
 set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/vendor)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -pedantic -pedantic-errors -Wall -Werror -Wextra -Wbad-function-cast -Wcast-function-type)
+# warning level
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -pedantic
+        -pedantic-errors
+        -Wall
+        -Werror
+        -Wextra
+        -Wbad-function-cast
+        -Wcast-function-type
+        -Wno-unused-command-line-argument
+    )
+endif()
 
 # sanitizers
 target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined -fno-sanitize-recover=all)
