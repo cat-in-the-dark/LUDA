@@ -3,6 +3,9 @@ project(LUDA C)
 
 set(CMAKE_C_STANDARD 11)
 
+option(SANITIZE "Build project with Address & UB sanitizers" OFF)
+option(EMSCRIPTEN "Build project for web" OFF)
+
 file(GLOB_RECURSE SOURCES src/*.c)
 file(GLOB_RECURSE HEADERS src/*.h)
 
@@ -27,12 +30,25 @@ else()
 endif()
 
 # sanitizers
-target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined -fno-sanitize-recover=all)
-target_link_libraries(${PROJECT_NAME} -fsanitize=address,undefined)
+if(SANITIZE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        message("LUDA: Building with sanitizers")
+
+        target_compile_options(${PROJECT_NAME} PRIVATE
+            -fsanitize=address,undefined
+            -fno-sanitize-recover=all
+        )
+
+        target_link_libraries(${PROJECT_NAME} -fsanitize=address,undefined)
+    else()
+        message(FATAL_ERROR "Sanitizers are supported only on Clang!")
+    endif()
+endif()
 
 include(cmake/lua.cmake)
 
 if(EMSCRIPTEN)
+    message("LUDA: Building for web")
     set(PLATFORM Web)
     set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
