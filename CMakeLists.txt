@@ -16,7 +16,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -pedantic -pedantic-errors -Wall 
 
 # sanitizers
 target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined -fno-sanitize-recover=all )
-target_link_libraries(${PROJECT_NAME} "-fsanitize=address,undefined")
+target_link_libraries(${PROJECT_NAME} -fsanitize=address,undefined)
 
 include(cmake/lua.cmake)
 
@@ -45,7 +45,7 @@ target_link_libraries(${PROJECT_NAME} raylib lua)
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)
-    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
-    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
-    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
+    target_link_libraries(${PROJECT_NAME} -framework IOKit)
+    target_link_libraries(${PROJECT_NAME} -framework Cocoa)
+    target_link_libraries(${PROJECT_NAME} -framework OpenGL)
 endif()
