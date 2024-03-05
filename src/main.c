@@ -16,7 +16,7 @@ void call_update(lua_State *L) {
   if (lua_isfunction(L, -1)) {
     lua_pushnumber(L, GetFrameTime());
     if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-      const char* msg = lua_tostring(L, -1);
+      const char *msg = lua_tostring(L, -1);
       TraceLog(LOG_ERROR, "lua: %s", msg);
     }
   } else {
@@ -28,8 +28,8 @@ void call_draw(lua_State *L) {
   lua_getglobal(L, PACKAGE);
   lua_getfield(L, -1, "draw");
   if (lua_isfunction(L, -1)) {
-    if (lua_pcall(L, 0,0,0) != LUA_OK) {
-      const char* msg = lua_tostring(L, -1);
+    if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+      const char *msg = lua_tostring(L, -1);
       TraceLog(LOG_ERROR, "lua: %s", msg);
     }
   } else {
@@ -69,7 +69,7 @@ Color lua_tocolor(lua_State *L, int idx) {
   lua_getfield(L, idx, "a");
   int alpha = lua_tonumber(L, -1);
 
-  return (Color){ red, green, blue, alpha };
+  return (Color){red, green, blue, alpha};
 }
 
 int lua_new_color(lua_State *L) {
@@ -115,7 +115,7 @@ void lua_pushtexture(lua_State *L, Texture2D tex) {
 
 Texture lua_totexture2d(lua_State *L, int idx) {
   lua_getfield(L, idx, "id");
-  unsigned int id = lua_tointeger(L, -1);  
+  unsigned int id = lua_tointeger(L, -1);
   lua_getfield(L, idx, "width");
   int width = lua_tointeger(L, -1);
   lua_getfield(L, idx, "height");
@@ -125,13 +125,13 @@ Texture lua_totexture2d(lua_State *L, int idx) {
   lua_getfield(L, idx, "format");
   int format = lua_tointeger(L, -1);
 
-  return (Texture){ id, width, height, mipmaps, format };
+  return (Texture){id, width, height, mipmaps, format};
 }
 
 int lua_load_texture(lua_State *L) {
   int n = lua_gettop(L);
   if (n == 1) {
-    const char* fileName = lua_tostring(L, 1);
+    const char *fileName = lua_tostring(L, 1);
     Texture tex = LoadTexture(fileName);
     lua_pushtexture(L, tex);
     return 1;
@@ -164,7 +164,7 @@ int lua_draw_rectangle(lua_State *L) {
     int width = lua_tonumber(L, 3);
     int height = lua_tonumber(L, 4);
     Color color = lua_tocolor(L, 5);
-    
+
     DrawRectangle(pos_x, pos_y, width, height, color);
   } else {
     luaL_error(L, "rl.rect expects 5 args, got: %d", n);
@@ -186,7 +186,7 @@ int lua_clear(lua_State *L) {
 }
 
 void update(void *arg) {
-  lua_State* L = (lua_State*)arg;
+  lua_State *L = (lua_State *) arg;
 
   lua_getglobal(L, PACKAGE);
   // TODO: is it better than passing a function to lua?
@@ -203,7 +203,7 @@ void update(void *arg) {
 }
 
 int main(void) {
-  lua_State* L;
+  lua_State *L;
 
   L = luaL_newstate();
   luaL_openlibs(L);
@@ -245,11 +245,11 @@ int main(void) {
 
   int err = luaL_dofile(L, "examples/main.lua");
   if (err != LUA_OK) {
-    const char* msg = lua_tostring(L, -1);
+    const char *msg = lua_tostring(L, -1);
     TraceLog(LOG_ERROR, "lua: %s", msg);
     return 0;
   }
-  
+
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop_arg(update, L, 0, 1);
 #else
@@ -262,6 +262,6 @@ int main(void) {
   CloseWindow();
 
   lua_close(L);
-  
+
   return 0;
 }
