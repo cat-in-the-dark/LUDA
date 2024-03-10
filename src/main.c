@@ -4,6 +4,8 @@
 #include <raylib.h>
 #include <stdlib.h>
 
+#include "color.h"
+#include "texture2d.h"
 #include "vec.h"
 
 #if defined(PLATFORM_WEB)
@@ -39,95 +41,13 @@ void call_draw(lua_State *L) {
   }
 }
 
-void lua_pushcolor(lua_State *L, Color color) {
-  // TODO: make it userdata to speed up
-  lua_newtable(L);
-  lua_pushnumber(L, color.r);
-  lua_setfield(L, -2, "r");
-  lua_pushnumber(L, color.g);
-  lua_setfield(L, -2, "g");
-  lua_pushnumber(L, color.b);
-  lua_setfield(L, -2, "b");
-  lua_pushnumber(L, color.a);
-  lua_setfield(L, -2, "a");
-}
-
-Color lua_tocolor(lua_State *L, int idx) {
-  lua_getfield(L, idx, "r");
-  int red = lua_tonumber(L, -1);
-  lua_getfield(L, idx, "g");
-  int green = lua_tonumber(L, -1);
-  lua_getfield(L, idx, "b");
-  int blue = lua_tonumber(L, -1);
-  lua_getfield(L, idx, "a");
-  int alpha = lua_tonumber(L, -1);
-
-  return (Color){red, green, blue, alpha};
-}
-
-int lua_new_color(lua_State *L) {
-  int n = lua_gettop(L);
-  if (n == 3) {
-    int red = lua_tonumber(L, 1);
-    int green = lua_tonumber(L, 2);
-    int blue = lua_tonumber(L, 3);
-    lua_pushcolor(L, (Color){red, green, blue, 255});
-  } else {
-    lua_pushcolor(L, BLACK);
-  }
-
-  return 1;
-}
-
-void lua_pushtexture(lua_State *L, Texture2D tex) {
-  lua_newtable(L);
-  lua_pushinteger(L, tex.id);
-  lua_setfield(L, -2, "id");
-  lua_pushinteger(L, tex.width);
-  lua_setfield(L, -2, "width");
-  lua_pushinteger(L, tex.height);
-  lua_setfield(L, -2, "height");
-  lua_pushinteger(L, tex.mipmaps);
-  lua_setfield(L, -2, "mipmaps");
-  lua_pushinteger(L, tex.format);
-  lua_setfield(L, -2, "format");
-}
-
-Texture lua_totexture2d(lua_State *L, int idx) {
-  lua_getfield(L, idx, "id");
-  unsigned int id = lua_tointeger(L, -1);
-  lua_getfield(L, idx, "width");
-  int width = lua_tointeger(L, -1);
-  lua_getfield(L, idx, "height");
-  int height = lua_tointeger(L, -1);
-  lua_getfield(L, idx, "mipmaps");
-  int mipmaps = lua_tointeger(L, -1);
-  lua_getfield(L, idx, "format");
-  int format = lua_tointeger(L, -1);
-
-  return (Texture){id, width, height, mipmaps, format};
-}
-
-int lua_load_texture(lua_State *L) {
-  int n = lua_gettop(L);
-  if (n == 1) {
-    const char *fileName = lua_tostring(L, 1);
-    Texture tex = LoadTexture(fileName);
-    lua_pushtexture(L, tex);
-    return 1;
-  } else {
-    luaL_error(L, "rl.load_texture expects 1 arg, got: %d", n);
-  }
-  return 0;
-}
-
 int lua_draw_texture(lua_State *L) {
   int n = lua_gettop(L);
   if (n == 3) {
-    Texture tex = lua_totexture2d(L, 1);
+    Texture *tex = to_texture(L, 1);
     Vector2 *pos = to_vec2(L, 2);
-    Color color = lua_tocolor(L, 3);
-    DrawTexture(tex, pos->x, pos->y, color);
+    Color *color = to_color(L, 3);
+    DrawTexture(*tex, pos->x, pos->y, *color);
   } else {
     luaL_error(L, "rl.texture expects 1 arg, got: %d", n);
   }
@@ -142,9 +62,9 @@ int lua_draw_rectangle(lua_State *L) {
     int pos_y = lua_tonumber(L, 2);
     int width = lua_tonumber(L, 3);
     int height = lua_tonumber(L, 4);
-    Color color = lua_tocolor(L, 5);
+    Color *color = to_color(L, 5);
 
-    DrawRectangle(pos_x, pos_y, width, height, color);
+    DrawRectangle(pos_x, pos_y, width, height, *color);
   } else {
     luaL_error(L, "rl.rect expects 5 args, got: %d", n);
   }
@@ -156,8 +76,8 @@ int lua_clear(lua_State *L) {
   if (n == 0) {
     ClearBackground(BLACK);
   } else if (n == 1) {
-    Color color = lua_tocolor(L, 1);
-    ClearBackground(color);
+    Color *color = to_color(L, 1);
+    ClearBackground(*color);
   } else {
     luaL_error(L, "rl.clear expects 0 or 1 args, got: %d", n);
   }
@@ -187,6 +107,10 @@ int main(void) {
   L = luaL_newstate();
   luaL_openlibs(L);
 
+  color_register(L);
+  texture_register(L);
+  vec2_register(L);
+
   lua_newtable(L);
 
   lua_pushinteger(L, 0);
@@ -194,22 +118,8 @@ int main(void) {
   lua_pushinteger(L, 0);
   lua_setfield(L, -2, "screen_height");
 
-  lua_pushcfunction(L, lua_new_color);
-  lua_setfield(L, -2, "color");
-
-  vec2_register(L);
-
-  lua_pushcolor(L, RED);
-  lua_setfield(L, -2, "RED");
-
-  lua_pushcolor(L, RAYWHITE);
-  lua_setfield(L, -2, "RAYWHITE");
-
   lua_pushcfunction(L, lua_draw_rectangle);
   lua_setfield(L, -2, "rect");
-
-  lua_pushcfunction(L, lua_load_texture);
-  lua_setfield(L, -2, "load_texture");
 
   lua_pushcfunction(L, lua_draw_texture);
   lua_setfield(L, -2, "texture");
