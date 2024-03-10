@@ -60,7 +60,7 @@ if(EMSCRIPTEN)
 
     file(COPY examples DESTINATION ${CMAKE_BINARY_DIR}/)
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy -s GL_ENABLE_GET_PROC_ADDRESS -s USE_GLFW=3 -s FETCH=1 -lidbfs.js --embed-file examples/ --shell-file ${CMAKE_SOURCE_DIR}/src/index.html")
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy -s GL_ENABLE_GET_PROC_ADDRESS -s USE_GLFW=3 --embed-file examples/ --shell-file ${CMAKE_SOURCE_DIR}/src/index.html")
 
     string(REPLACE "-rdynamic" "" CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "${CMAKE_SHARED_LIBRARY_LINK_C_FLAGS}")
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
