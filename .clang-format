@@ -5,3 +5,4 @@ ColumnLimit: 120
 UseTab: Never
 SpaceAfterCStyleCast: true
 AllowShortFunctionsOnASingleLine: Empty
+InsertNewlineAtEOF: true

@@ -3,6 +3,7 @@
 #include <lualib.h>
 #include <raylib.h>
 #include <stdlib.h>
+
 #include "vec.h"
 
 #if defined(PLATFORM_WEB)
@@ -124,7 +125,7 @@ int lua_draw_texture(lua_State *L) {
   int n = lua_gettop(L);
   if (n == 3) {
     Texture tex = lua_totexture2d(L, 1);
-    Vector2* pos = to_vec2(L, 2);
+    Vector2 *pos = to_vec2(L, 2);
     Color color = lua_tocolor(L, 3);
     DrawTexture(tex, pos->x, pos->y, color);
   } else {
