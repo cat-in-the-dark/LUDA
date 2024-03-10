@@ -3,6 +3,7 @@
 #include <lualib.h>
 #include <raylib.h>
 #include <stdlib.h>
+#include "vec.h"
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -50,15 +51,6 @@ void lua_pushcolor(lua_State *L, Color color) {
   lua_setfield(L, -2, "a");
 }
 
-void lua_pushvector2(lua_State *L, Vector2 vec) {
-  // TODO: make it userdata to speed up
-  lua_newtable(L);
-  lua_pushnumber(L, vec.x);
-  lua_setfield(L, -2, "x");
-  lua_pushnumber(L, vec.y);
-  lua_setfield(L, -2, "y");
-}
-
 Color lua_tocolor(lua_State *L, int idx) {
   lua_getfield(L, idx, "r");
   int red = lua_tonumber(L, -1);
@@ -81,19 +73,6 @@ int lua_new_color(lua_State *L) {
     lua_pushcolor(L, (Color){red, green, blue, 255});
   } else {
     lua_pushcolor(L, BLACK);
-  }
-
-  return 1;
-}
-
-int lua_new_vector2(lua_State *L) {
-  int n = lua_gettop(L);
-  if (n == 2) {
-    double x = lua_tonumber(L, 1);
-    double y = lua_tonumber(L, 2);
-    lua_pushvector2(L, (Vector2){x, y});
-  } else {
-    lua_pushvector2(L, (Vector2){0, 0});
   }
 
   return 1;
@@ -143,12 +122,11 @@ int lua_load_texture(lua_State *L) {
 
 int lua_draw_texture(lua_State *L) {
   int n = lua_gettop(L);
-  if (n == 4) {
+  if (n == 3) {
     Texture tex = lua_totexture2d(L, 1);
-    int pos_x = lua_tonumber(L, 2);
-    int pos_y = lua_tonumber(L, 3);
-    Color color = lua_tocolor(L, 4);
-    DrawTexture(tex, pos_x, pos_y, color);
+    Vector2* pos = to_vec2(L, 2);
+    Color color = lua_tocolor(L, 3);
+    DrawTexture(tex, pos->x, pos->y, color);
   } else {
     luaL_error(L, "rl.texture expects 1 arg, got: %d", n);
   }
@@ -218,8 +196,7 @@ int main(void) {
   lua_pushcfunction(L, lua_new_color);
   lua_setfield(L, -2, "color");
 
-  lua_pushcfunction(L, lua_new_vector2);
-  lua_setfield(L, -2, "vec2");
+  vec2_register(L);
 
   lua_pushcolor(L, RED);
   lua_setfield(L, -2, "RED");
@@ -253,7 +230,7 @@ int main(void) {
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop_arg(update, L, 0, 1);
 #else
-  SetTargetFPS(60);
+  // SetTargetFPS(60);
   while (!WindowShouldClose()) {
     update(L);
   }
