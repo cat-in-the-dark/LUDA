@@ -5,6 +5,7 @@
 #include <lua.h>
 #include <lualib.h>
 #include <raylib.h>
+#include <raymath.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -24,28 +25,33 @@ Vector2 *check_vec2(lua_State *L, int index) {
   return vec;
 }
 
-Vector2 *push_vec2(lua_State *L) {
+Vector2 *push_vec2(lua_State *L, Vector2 value) {
   Vector2 *vec = (Vector2 *) lua_newuserdata(L, sizeof(Vector2));
   luaL_getmetatable(L, META_VEC2);
   lua_setmetatable(L, -2);
+
+  memcpy(vec, &value, sizeof(Vector2));
+
   return vec;
+}
+
+void push_named_vec(lua_State *L, Vector2 value, const char* name) {
+  push_vec2(L, value);
+  lua_setfield(L, -2, name);
 }
 
 int vec2_new(lua_State *L) {
   double x = luaL_optnumber(L, 1, 0);
   double y = luaL_optnumber(L, 2, 0);
-  Vector2 *vec = push_vec2(L);
-  vec->x = x;
-  vec->y = y;
+  Vector2 value = {x, y};
+  push_vec2(L, value);
   return 1;
 }
 
 int vec2_add(lua_State *L) {
   Vector2 *lhs = check_vec2(L, 1);
   Vector2 *rhs = check_vec2(L, 2);
-  Vector2 *res = push_vec2(L);
-  res->x = lhs->x + rhs->x;
-  res->y = lhs->y + rhs->y;
+  push_vec2(L, Vector2Add(*lhs, *rhs));
   return 1;
 }
 
@@ -60,9 +66,7 @@ int vec2_add_inplace(lua_State *L) {
 int vec2_mul(lua_State *L) {
   Vector2 *lhs = check_vec2(L, 1);
   Vector2 *rhs = check_vec2(L, 2);
-  Vector2 *res = push_vec2(L);
-  res->x = lhs->x * rhs->x;
-  res->y = lhs->y * rhs->y;
+  push_vec2(L, Vector2Multiply(*lhs, *rhs));
   return 1;
 }
 
@@ -129,15 +133,22 @@ void vec2_register(lua_State *L) {
   lua_pushvalue(L, -1);
   lua_setfield(L, -2, "__index");
   luaL_setfuncs(L, vec2_methods, 0);
-  // lua_pushcfunction(L, vec2_tostring); lua_setfield(L, -2, "__tostring");
-  // lua_pushcfunction(L, vec2_add); lua_setfield(L, -2, "__add");
-  // lua_pushcfunction(L, vec2_mul); lua_setfield(L, -2, "__mul");
-  // lua_pushcfunction(L, vec2_gc); lua_setfield(L, -2, "__gc");
-  // lua_pushcfunction(L, vec2_add_inplace); lua_setfield(L, -2, "add");
-  // lua_pushcfunction(L, vec2_mul_inplace); lua_setfield(L, -2, "mul");
-  // lua_pushcfunction(L, vec2_get); lua_setfield(L, -2, "get");
 
   lua_pop(L, 1);
+
+  Vector2 up = {0, 1};
+  Vector2 down = {0, -1};
+  Vector2 left = {-1, 0};
+  Vector2 right = {1, 0};
+  Vector2 one = {1, 1};
+  Vector2 zero = {0, 0};
+
+  push_named_vec(L, up, "UP");
+  push_named_vec(L, down, "DOWN");
+  push_named_vec(L, right, "RIGHT");
+  push_named_vec(L, left, "LEFT");
+  push_named_vec(L, zero, "ZERO");
+  push_named_vec(L, one, "ONE");
 
   lua_setglobal(L, "vec2");
 }
