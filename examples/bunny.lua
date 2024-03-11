@@ -17,10 +17,10 @@ function Bunny:update(texture)
   self.position:add(self.speed)
   local x, y = self.position:get()
 
-  if ((x + w / 2) > rl.screen_width) or ((x + w / 2) < 0) then
+  if (x+w) > luda.screen_width or x < 0 then
     self.speed:mul(flip_x)
   end
-  if ((y + h / 2) > rl.screen_height) or ((y + h / 2 - 40) < 0) then
+  if (y + h) > luda.screen_height or (y - 40) < 0 then
     self.speed:mul(flip_y)
   end
 end

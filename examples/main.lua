@@ -8,17 +8,17 @@ for i = 1, 10000 do
   table.insert(bunnies, Bunny:new(vec2.new(400, 300), speed, color))
 end
 
-function rl.update(dt)
+function luda.update(dt)
   for i = 1, #bunnies do
     bunnies[i]:update(tex_bunny)
   end
 end
 
-function rl.draw()
-  rl.clear(color.RAYWHITE)
+function luda.draw()
+  luda.clear(color.RAYWHITE)
 
   for i = 1, #bunnies do
     local b = bunnies[i]
-    rl.texture(tex_bunny, b.position, b.color);
+    luda.texture(tex_bunny, b.position, b.color);
   end
 end
