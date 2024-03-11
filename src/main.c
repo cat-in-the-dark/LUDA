@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "color.h"
+#include "rect.h"
 #include "texture2d.h"
 #include "vec.h"
 
@@ -12,7 +13,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#define PACKAGE "rl"
+#define PACKAGE "luda"
 
 void call_update(lua_State *L) {
   lua_getglobal(L, PACKAGE);
@@ -110,6 +111,7 @@ int main(void) {
   color_register(L);
   texture_register(L);
   vec2_register(L);
+  rect_register(L);
 
   lua_newtable(L);
 
