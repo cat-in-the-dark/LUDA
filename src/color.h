@@ -33,6 +33,11 @@ Color *push_color(lua_State *L, Color value) {
   return color;
 }
 
+void push_named_color(lua_State *L, Color value, const char* name) {
+  push_color(L, value);
+  lua_setfield(L, -2, name);
+}
+
 unsigned char to_byte(double v) {
   return (char) v % 255;
 }
@@ -74,11 +79,32 @@ void color_register(lua_State *L) {
 
   lua_pop(L, 1);
 
-  push_color(L, RED);
-  lua_setfield(L, -2, "RED");
-
-  push_color(L, RAYWHITE);
-  lua_setfield(L, -2, "RAYWHITE");
+  push_named_color(L, LIGHTGRAY, "LIGHTGRAY");
+  push_named_color(L, GRAY, "GRAY");
+  push_named_color(L, DARKGRAY, "DARKGRAY");
+  push_named_color(L, YELLOW, "YELLOW");
+  push_named_color(L, GOLD, "GOLD");
+  push_named_color(L, ORANGE, "ORANGE");
+  push_named_color(L, PINK, "PINK");
+  push_named_color(L, RED, "RED");
+  push_named_color(L, MAROON, "MAROON");
+  push_named_color(L, GREEN, "GREEN");
+  push_named_color(L, LIME, "LIME");
+  push_named_color(L, DARKGREEN, "DARKGREEN");
+  push_named_color(L, SKYBLUE, "SKYBLUE");
+  push_named_color(L, BLUE, "BLUE");
+  push_named_color(L, DARKBLUE, "DARKBLUE");
+  push_named_color(L, PURPLE, "PURPLE");
+  push_named_color(L, VIOLET, "VIOLET");
+  push_named_color(L, DARKPURPLE, "DARKPURPLE");
+  push_named_color(L, BEIGE, "BEIGE");
+  push_named_color(L, BROWN, "BROWN");
+  push_named_color(L, DARKBROWN, "DARKBROWN");
+  push_named_color(L, WHITE, "WHITE");
+  push_named_color(L, BLACK, "BLACK");
+  push_named_color(L, BLANK, "BLANK");
+  push_named_color(L, MAGENTA, "MAGENTA");
+  push_named_color(L, RAYWHITE, "RAYWHITE");
 
   lua_setglobal(L, META_COLOR);
 }
