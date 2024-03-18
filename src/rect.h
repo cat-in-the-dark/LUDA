@@ -78,7 +78,7 @@ void rect_register(lua_State *L) {
 
   lua_pop(L, 1);
 
-  lua_setglobal(L, "rect");
+  lua_setfield(L, -2, "rect");
 }
 
 #endif

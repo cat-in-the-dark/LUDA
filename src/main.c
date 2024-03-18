@@ -44,15 +44,27 @@ void call_draw(lua_State *L) {
 
 int lua_draw_texture(lua_State *L) {
   int n = lua_gettop(L);
+  Texture tex;
+  Vector2 pos;
+  Color color;
   if (n == 3) {
-    Texture *tex = to_texture(L, 1);
-    Vector2 *pos = to_vec2(L, 2);
-    Color *color = to_color(L, 3);
-    DrawTexture(*tex, pos->x, pos->y, *color);
+    tex = *to_texture(L, 1);
+    pos = *to_vec2(L, 2);
+    color = *to_color(L, 3);
+  } else if (n == 2) {
+    tex = *to_texture(L, 1);
+    pos = *to_vec2(L, 2);
+    color = WHITE;
+  } else if (n == 1) {
+    tex = *to_texture(L, 1);
+    pos = Vector2Zero();
+    color = WHITE;
   } else {
-    luaL_error(L, "rl.texture expects 1 arg, got: %d", n);
+    luaL_error(L, "rl.draw_texture expects 3,2, or 1 args, got: %d", n);
+    return 0;
   }
 
+  DrawTexture(tex, pos.x, pos.y, color);
   return 0;
 }
 
@@ -68,6 +80,22 @@ int lua_draw_rectangle(lua_State *L) {
     DrawRectangle(pos_x, pos_y, width, height, *color);
   } else {
     luaL_error(L, "rl.rect expects 5 args, got: %d", n);
+  }
+  return 0;
+}
+
+int lua_draw_line(lua_State *L) {
+  int n = lua_gettop(L);
+  if (n == 5) {
+    int x1 = lua_tonumber(L, 1);
+    int y1 = lua_tonumber(L, 2);
+    int x2 = lua_tonumber(L, 3);
+    int y2 = lua_tonumber(L, 4);
+    Color *color = to_color(L, 5);
+
+    DrawLine(x1, y1, x2, y2, *color);
+  } else {
+    luaL_error(L, "rl.line expects 5 args, got: %d", n);
   }
   return 0;
 }
@@ -102,18 +130,18 @@ void update(void *arg) {
   EndDrawing();
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
   lua_State *L;
 
   L = luaL_newstate();
   luaL_openlibs(L);
 
+  lua_newtable(L);
+
   color_register(L);
   texture_register(L);
   vec2_register(L);
   rect_register(L);
-
-  lua_newtable(L);
 
   lua_pushinteger(L, 0);
   lua_setfield(L, -2, "screen_width");
@@ -121,19 +149,27 @@ int main(void) {
   lua_setfield(L, -2, "screen_height");
 
   lua_pushcfunction(L, lua_draw_rectangle);
-  lua_setfield(L, -2, "rect");
+  lua_setfield(L, -2, "draw_rect");
+
+  lua_pushcfunction(L, lua_draw_line);
+  lua_setfield(L, -2, "draw_line");
 
   lua_pushcfunction(L, lua_draw_texture);
-  lua_setfield(L, -2, "texture");
+  lua_setfield(L, -2, "draw_texture");
 
   lua_pushcfunction(L, lua_clear);
   lua_setfield(L, -2, "clear");
 
   lua_setglobal(L, PACKAGE);
 
-  InitWindow(800, 600, "LOL");
+  InitWindow(800, 600, "LUDA");
 
-  int err = luaL_dofile(L, "examples/main.lua");
+  const char *root_dir = "examples/main.lua";
+  if (argc >= 2) {
+    root_dir = argv[1];
+  }
+
+  int err = luaL_dofile(L, root_dir);
   if (err != LUA_OK) {
     const char *msg = lua_tostring(L, -1);
     TraceLog(LOG_ERROR, "lua: %s", msg);
@@ -143,7 +179,7 @@ int main(void) {
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop_arg(update, L, 0, 1);
 #else
-  // SetTargetFPS(60);
+  SetTargetFPS(60);
   while (!WindowShouldClose()) {
     update(L);
   }

@@ -78,7 +78,7 @@ void texture_register(lua_State *L) {
 
   lua_pop(L, 1);
 
-  lua_setglobal(L, META_TEXTURE);
+  lua_setfield(L, -2, META_TEXTURE);
 }
 
 #endif

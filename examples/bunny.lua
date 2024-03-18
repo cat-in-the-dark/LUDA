@@ -1,5 +1,5 @@
-local flip_x = vec2.new(-1, 1)
-local flip_y = vec2.new(1, -1)
+local flip_x = luda.vec2.new(-1, 1)
+local flip_y = luda.vec2.new(1, -1)
 
 Bunny = {}
 Bunny.__index = Bunny
@@ -17,7 +17,7 @@ function Bunny:update(texture)
   self.position:add(self.speed)
   local x, y = self.position:get()
 
-  if (x+w) > luda.screen_width or x < 0 then
+  if (x + w) > luda.screen_width or x < 0 then
     self.speed:mul(flip_x)
   end
   if (y + h) > luda.screen_height or (y - 40) < 0 then

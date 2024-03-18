@@ -35,7 +35,7 @@ Vector2 *push_vec2(lua_State *L, Vector2 value) {
   return vec;
 }
 
-void push_named_vec(lua_State *L, Vector2 value, const char* name) {
+void push_named_vec(lua_State *L, Vector2 value, const char *name) {
   push_vec2(L, value);
   lua_setfield(L, -2, name);
 }
@@ -150,7 +150,7 @@ void vec2_register(lua_State *L) {
   push_named_vec(L, zero, "ZERO");
   push_named_vec(L, one, "ONE");
 
-  lua_setglobal(L, "vec2");
+  lua_setfield(L, -2, "vec2");
 }
 
 #endif

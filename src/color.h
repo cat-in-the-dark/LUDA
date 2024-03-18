@@ -33,7 +33,7 @@ Color *push_color(lua_State *L, Color value) {
   return color;
 }
 
-void push_named_color(lua_State *L, Color value, const char* name) {
+void push_named_color(lua_State *L, Color value, const char *name) {
   push_color(L, value);
   lua_setfield(L, -2, name);
 }
@@ -106,7 +106,7 @@ void color_register(lua_State *L) {
   push_named_color(L, MAGENTA, "MAGENTA");
   push_named_color(L, RAYWHITE, "RAYWHITE");
 
-  lua_setglobal(L, META_COLOR);
+  lua_setfield(L, -2, META_COLOR);
 }
 
 #endif
